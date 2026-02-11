@@ -1,0 +1,6 @@
+# n8n credentials
+# Node modules
+node_modules/
+.env
+*.log
+.DS_Store
