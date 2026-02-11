@@ -1,0 +1,1226 @@
+{
+  "success": true,
+  "data": {
+    "updatedAt": "2026-02-11T01:08:09.079Z",
+    "createdAt": "2026-02-05T19:05:41.162Z",
+    "id": "IbG8jCLZxkmR-Yw9JVUQ9",
+    "name": "Aprovação Posts TELEGRAM",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "jsCode": "// O ID já foi extraído no Detect Action agora\nreturn [{\n  json: {\n    ...$input.first().json\n  }\n}];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -2016,
+          64
+        ],
+        "id": "d6fffa0f-cdee-4cc5-9ff9-e5ed067038d9",
+        "name": "Extract Post ID"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/posts/{{ $json.postId }}",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "wordpressApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\n  \"status\": \"publish\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          -1792,
+          64
+        ],
+        "id": "5b19bbdc-f0f5-4a23-94ba-8c2e0c66de21",
+        "name": "Publicar Post no WordPress",
+        "credentials": {
+          "wordpressApi": {
+            "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+            "name": "WordpressBlog"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// O motivo já foi extraído no Detect Action\nreturn [{\n  json: {\n    ...$input.first().json,\n    rejectionReason: $input.first().json.rejectionReason || 'Sem motivo informado'\n  }\n}];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1792,
+          256
+        ],
+        "id": "5ad4dcf5-2aaf-43ca-8c5a-819bbc3e0df0",
+        "name": "Extract Rejection Data"
+      },
+      {
+        "parameters": {
+          "method": "DELETE",
+          "url": "=https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/posts/{{ $json.postId }}?force=true",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "wordpressApi",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          -672,
+          256
+        ],
+        "id": "13a27464-7ae9-44cc-8918-5319de2ff71c",
+        "name": "Delete Rejected Post",
+        "credentials": {
+          "wordpressApi": {
+            "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+            "name": "WordpressBlog"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8nwebhook.emersonporfaaudio.com.br/webhook/create-post",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"Keywords (comma-separated)\": \"{{ $('If1').item.json.keywords }}\",\n  \"Number of chapters\": \"{{ $('If1').item.json.chapters }}\",\n  \"Max words count\": \"{{ $('If1').item.json.words }}\",\n  \"rejectionContext\": \"{{ $('If1').item.json.rejectionReason }}\"\n}",
+          "options": {
+            "timeout": 300000
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          0,
+          256
+        ],
+        "id": "30330b6f-a346-4e2f-9a9c-f9dcb3b96ea7",
+        "name": "Trigger New Post Creation"
+      },
+      {
+        "parameters": {
+          "jsCode": "const sheetData = $input.first().json;\nconst postId = $('Extract Rejection Data').first().json.postId;\nconst rejectionReason = $('Extract Rejection Data').first().json.rejectionReason;\n\n// Verifica se encontrou dados no Google Sheets\nif (!sheetData || !sheetData.post_id) {\n  return [{\n    json: {\n      ok: false,\n      postId,\n      rejectionReason,\n      error: `Post #${postId} não tem dados salvos no Google Sheets.`\n    }\n  }];\n}\n\n// Pega os dados da planilha\nconst keywords = sheetData.keywords;\nconst chapters = parseInt(sheetData.chapters);\nconst words = parseInt(sheetData.words);\n\n// Valida se tem todos os dados\nif (!keywords || !chapters || !words) {\n  return [{\n    json: {\n      ok: false,\n      postId,\n      rejectionReason,\n      error: `Post #${postId} está com dados incompletos no Google Sheets.`\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ok: true,\n    postId,\n    keywords,\n    chapters,\n    words,\n    rejectionReason\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1344,
+          256
+        ],
+        "id": "04f69882-3afc-4d73-bab8-07532b043546",
+        "name": "Prepare Rejection Data"
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nlet action = null;\nlet postId = null;\nlet incomingText = '';\nlet chatId = null;\nlet rejectionReason = '';\n\n// Se for clique em botão (callback_query)\nif (data.callback_query) {\n  const cbData = data.callback_query.data;\n  chatId = data.callback_query.message.chat.id;\n  \n  if (cbData.startsWith('APPROVE#')) {\n    action = 'APPROVE';\n    postId = cbData.split('#')[1];\n  } else if (cbData.startsWith('REJECT#')) {\n    action = 'REJECT_CLICK';\n    postId = cbData.split('#')[1];\n  }\n} else if (data.message) {\n  // Se for mensagem de texto\n  incomingText = (data.message.text || '').trim();\n  const upper = incomingText.toUpperCase();\n  chatId = data.message.chat.id;\n\n  if (upper.startsWith('APROVAR')) {\n    action = 'APPROVE';\n    const match = incomingText.match(/#(\\d+)/);\n    if (match) postId = match[1];\n  } else if (upper.startsWith('REJEITAR')) {\n    action = 'REJECT';\n    const match = incomingText.match(/#(\\d+)/);\n    if (match) {\n        postId = match[1];\n        // Extrai o motivo (tudo que vem depois do #ID)\n        rejectionReason = incomingText.replace(/REJEITAR\\s+#\\d+\\s*/i, '').trim() || 'Sem motivo informado';\n    }\n  }\n}\n\nreturn [{\n  json: {\n    ...data,\n    incomingText,\n    action,\n    postId,\n    chatId,\n    rejectionReason\n  }\n}];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -2464,
+          160
+        ],
+        "id": "8406c9d1-e1db-4897-9a7f-1bb3329d765a",
+        "name": "Detect Action"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "conditions": [
+              {
+                "id": "24e24111-8bae-4247-a214-9e5b82df8a0a",
+                "leftValue": "={{ $json.action }}",
+                "operator": {
+                  "name": "filter.operator.equals",
+                  "operation": "equals",
+                  "type": "string"
+                },
+                "rightValue": "APPROVE"
+              }
+            ],
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            }
+          }
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -2240,
+          160
+        ],
+        "id": "05869dc8-adf6-40f3-84eb-4819d1ac6845",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "loose"
+            },
+            "conditions": [
+              {
+                "id": "8962423e-cb23-4947-bd07-30d0a2edb673",
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "true",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -896,
+          256
+        ],
+        "id": "a389350c-8025-4551-9990-f8ee2a9d076d",
+        "name": "If1"
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    ...item,\n    ok: Boolean(item.ok)\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1120,
+          256
+        ],
+        "id": "82d6cd52-39c9-441a-a03b-9426213f2bc6",
+        "name": "Normalize OK Boolean"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY",
+            "mode": "list",
+            "cachedResultName": "Posts Memory",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Página1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit#gid=0"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "post_id",
+                "lookupValue": "={{ $('Extract Rejection Data').first().json.postId }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -1568,
+          256
+        ],
+        "id": "2c4a76bf-9719-486a-be83-b5fe78e055a6",
+        "name": "Get row(s) in sheet",
+        "alwaysOutputData": true,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "Du4hkxIVIISxwDe8",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "updates": [
+            "message",
+            "callback_query"
+          ]
+        },
+        "type": "n8n-nodes-base.telegramTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -2688,
+          160
+        ],
+        "id": "9ffa4c19-748d-4196-8b30-36a04c17e34d",
+        "name": "Telegram Trigger",
+        "webhookId": "68b99e40-7589-41de-bdcf-0749a02ce1bc",
+        "credentials": {
+          "telegramApi": {
+            "id": "VX0ozi6nMNrpiHJS",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+          "text": "✅ POST PUBLICADO COM SUCESSO!  Os textos para LinkedIn e Instagram já foram enviados na primeira mensagem. Copie e cole nas redes sociais!",
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          -1344,
+          64
+        ],
+        "id": "7ae0c42b-d9d0-4159-a7cf-9bdb60377980",
+        "name": "Telegram Send a text message",
+        "webhookId": "dae7a2e0-8806-496c-988b-5b75d97fc53f",
+        "credentials": {
+          "telegramApi": {
+            "id": "VX0ozi6nMNrpiHJS",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// O ID já foi extraído no Detect Action agora\nreturn [{\n  json: {\n    ...$input.first().json\n  }\n}];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -2016,
+          256
+        ],
+        "id": "d5aaf0fc-746d-431d-b9c7-5dad519516d8",
+        "name": "Extract Post ID1"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "18f0a823-8b78-4c4f-8dda-3bd057395adf",
+                "name": "text",
+                "value": "=Post {{$('If1').item.json.postId}} foi REJEITADO e removido do WordPress. Motivo: {{$('Extract Rejection Data').first().json.rejectionReason || 'Sem motivo informado'}}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -448,
+          256
+        ],
+        "id": "721eb512-fdd6-4004-ae1c-49ec08d629c8",
+        "name": "Build Rejection Message"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.telegram.org/bot8508917784:AAFJzW2NXsKkDa6I4ORDPxwLpHuy5RmVBdE/sendMessage",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"chat_id\": {{ $('Telegram Trigger').first().json.message.chat.id }},\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          0,
+          0
+        ],
+        "id": "bad6a803-8d62-4087-9d81-73fea71d8d67",
+        "name": "Send TG Rejected (HTTP)"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.telegram.org/bot8508917784:AAFJzW2NXsKkDa6I4ORDPxwLpHuy5RmVBdE/sendMessage",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"chat_id\": {{ $('Telegram Trigger').first().json.message.chat.id }},\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          448,
+          256
+        ],
+        "id": "9ae8b2f0-c8a9-4254-affa-b5c2d6b23383",
+        "name": "Send TG Recreated (HTTP)"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "502d805f-cef5-4800-ae22-89a94c62cc33",
+                "name": "text",
+                "value": "=✅ Novo rascunho solicitado. Post rejeitado: {{$('If1').item.json.postId}} Keywords: {{$json.keywords}} Capítulos: {{$json.chapters}} Palavras: {{$json.words}}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          224,
+          256
+        ],
+        "id": "a24e2253-11e2-4629-941f-c3b09326ec0f",
+        "name": "Build Recreated Message"
+      }
+    ],
+    "connections": {
+      "Extract Post ID": {
+        "main": [
+          [
+            {
+              "node": "Publicar Post no WordPress",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Publicar Post no WordPress": {
+        "main": [
+          [
+            {
+              "node": "Telegram Send a text message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Rejection Data": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete Rejected Post": {
+        "main": [
+          [
+            {
+              "node": "Build Rejection Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Trigger New Post Creation": {
+        "main": [
+          [
+            {
+              "node": "Build Recreated Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Rejection Data": {
+        "main": [
+          [
+            {
+              "node": "Normalize OK Boolean",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Detect Action": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Extract Post ID",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Extract Post ID1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If1": {
+        "main": [
+          [
+            {
+              "node": "Delete Rejected Post",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize OK Boolean": {
+        "main": [
+          [
+            {
+              "node": "If1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Prepare Rejection Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "Detect Action",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Post ID1": {
+        "main": [
+          [
+            {
+              "node": "Extract Rejection Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Rejection Message": {
+        "main": [
+          [
+            {
+              "node": "Send TG Rejected (HTTP)",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Trigger New Post Creation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Recreated Message": {
+        "main": [
+          [
+            {
+              "node": "Send TG Recreated (HTTP)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false,
+      "callerPolicy": "workflowsFromSameOwner"
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "92e2a783-b830-4890-bacc-9369ade597b5",
+    "activeVersionId": "92e2a783-b830-4890-bacc-9369ade597b5",
+    "versionCounter": 14,
+    "triggerCount": 1,
+    "shared": [
+      {
+        "updatedAt": "2026-02-05T19:05:41.165Z",
+        "createdAt": "2026-02-05T19:05:41.165Z",
+        "role": "workflow:owner",
+        "workflowId": "IbG8jCLZxkmR-Yw9JVUQ9",
+        "projectId": "NlpanYkmlqAeP07K",
+        "project": {
+          "updatedAt": "2026-02-05T19:02:18.139Z",
+          "createdAt": "2026-02-05T18:37:11.829Z",
+          "id": "NlpanYkmlqAeP07K",
+          "name": "emerson silva <porfamail@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "9ed7cfce-6553-4d26-a005-ef76d47034a3",
+          "projectRelations": [
+            {
+              "updatedAt": "2026-02-05T18:37:11.832Z",
+              "createdAt": "2026-02-05T18:37:11.832Z",
+              "userId": "9ed7cfce-6553-4d26-a005-ef76d47034a3",
+              "projectId": "NlpanYkmlqAeP07K",
+              "user": {
+                "updatedAt": "2026-02-11T03:06:48.000Z",
+                "createdAt": "2026-02-05T18:37:11.132Z",
+                "id": "9ed7cfce-6553-4d26-a005-ef76d47034a3",
+                "email": "porfamail@gmail.com",
+                "firstName": "emerson",
+                "lastName": "silva",
+                "personalizationAnswers": {
+                  "version": "v4",
+                  "personalization_survey_submitted_at": "2026-02-05T19:02:21.334Z",
+                  "personalization_survey_n8n_version": "2.6.3"
+                },
+                "settings": {
+                  "userActivated": false,
+                  "easyAIWorkflowOnboarded": true
+                },
+                "disabled": false,
+                "mfaEnabled": false,
+                "lastActiveAt": "2026-02-10",
+                "isPending": false
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "tags": [],
+    "activeVersion": {
+      "updatedAt": "2026-02-11T01:08:09.080Z",
+      "createdAt": "2026-02-11T01:08:09.080Z",
+      "versionId": "92e2a783-b830-4890-bacc-9369ade597b5",
+      "workflowId": "IbG8jCLZxkmR-Yw9JVUQ9",
+      "nodes": [
+        {
+          "parameters": {
+            "jsCode": "// O ID já foi extraído no Detect Action agora\nreturn [{\n  json: {\n    ...$input.first().json\n  }\n}];\n"
+          },
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            -2016,
+            64
+          ],
+          "id": "d6fffa0f-cdee-4cc5-9ff9-e5ed067038d9",
+          "name": "Extract Post ID"
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "=https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/posts/{{ $json.postId }}",
+            "authentication": "predefinedCredentialType",
+            "nodeCredentialType": "wordpressApi",
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "{\n  \"status\": \"publish\"\n}",
+            "options": {}
+          },
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.3,
+          "position": [
+            -1792,
+            64
+          ],
+          "id": "5b19bbdc-f0f5-4a23-94ba-8c2e0c66de21",
+          "name": "Publicar Post no WordPress",
+          "credentials": {
+            "wordpressApi": {
+              "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+              "name": "WordpressBlog"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// O motivo já foi extraído no Detect Action\nreturn [{\n  json: {\n    ...$input.first().json,\n    rejectionReason: $input.first().json.rejectionReason || 'Sem motivo informado'\n  }\n}];\n"
+          },
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            -1792,
+            256
+          ],
+          "id": "5ad4dcf5-2aaf-43ca-8c5a-819bbc3e0df0",
+          "name": "Extract Rejection Data"
+        },
+        {
+          "parameters": {
+            "method": "DELETE",
+            "url": "=https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/posts/{{ $json.postId }}?force=true",
+            "authentication": "predefinedCredentialType",
+            "nodeCredentialType": "wordpressApi",
+            "options": {}
+          },
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.3,
+          "position": [
+            -672,
+            256
+          ],
+          "id": "13a27464-7ae9-44cc-8918-5319de2ff71c",
+          "name": "Delete Rejected Post",
+          "credentials": {
+            "wordpressApi": {
+              "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+              "name": "WordpressBlog"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "https://n8nwebhook.emersonporfaaudio.com.br/webhook/create-post",
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "={\n  \"Keywords (comma-separated)\": \"{{ $('If1').item.json.keywords }}\",\n  \"Number of chapters\": \"{{ $('If1').item.json.chapters }}\",\n  \"Max words count\": \"{{ $('If1').item.json.words }}\",\n  \"rejectionContext\": \"{{ $('If1').item.json.rejectionReason }}\"\n}",
+            "options": {
+              "timeout": 300000
+            }
+          },
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.3,
+          "position": [
+            0,
+            256
+          ],
+          "id": "30330b6f-a346-4e2f-9a9c-f9dcb3b96ea7",
+          "name": "Trigger New Post Creation"
+        },
+        {
+          "parameters": {
+            "jsCode": "const sheetData = $input.first().json;\nconst postId = $('Extract Rejection Data').first().json.postId;\nconst rejectionReason = $('Extract Rejection Data').first().json.rejectionReason;\n\n// Verifica se encontrou dados no Google Sheets\nif (!sheetData || !sheetData.post_id) {\n  return [{\n    json: {\n      ok: false,\n      postId,\n      rejectionReason,\n      error: `Post #${postId} não tem dados salvos no Google Sheets.`\n    }\n  }];\n}\n\n// Pega os dados da planilha\nconst keywords = sheetData.keywords;\nconst chapters = parseInt(sheetData.chapters);\nconst words = parseInt(sheetData.words);\n\n// Valida se tem todos os dados\nif (!keywords || !chapters || !words) {\n  return [{\n    json: {\n      ok: false,\n      postId,\n      rejectionReason,\n      error: `Post #${postId} está com dados incompletos no Google Sheets.`\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ok: true,\n    postId,\n    keywords,\n    chapters,\n    words,\n    rejectionReason\n  }\n}];"
+          },
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            -1344,
+            256
+          ],
+          "id": "04f69882-3afc-4d73-bab8-07532b043546",
+          "name": "Prepare Rejection Data"
+        },
+        {
+          "parameters": {
+            "jsCode": "const data = $input.first().json;\nlet action = null;\nlet postId = null;\nlet incomingText = '';\nlet chatId = null;\nlet rejectionReason = '';\n\n// Se for clique em botão (callback_query)\nif (data.callback_query) {\n  const cbData = data.callback_query.data;\n  chatId = data.callback_query.message.chat.id;\n  \n  if (cbData.startsWith('APPROVE#')) {\n    action = 'APPROVE';\n    postId = cbData.split('#')[1];\n  } else if (cbData.startsWith('REJECT#')) {\n    action = 'REJECT_CLICK';\n    postId = cbData.split('#')[1];\n  }\n} else if (data.message) {\n  // Se for mensagem de texto\n  incomingText = (data.message.text || '').trim();\n  const upper = incomingText.toUpperCase();\n  chatId = data.message.chat.id;\n\n  if (upper.startsWith('APROVAR')) {\n    action = 'APPROVE';\n    const match = incomingText.match(/#(\\d+)/);\n    if (match) postId = match[1];\n  } else if (upper.startsWith('REJEITAR')) {\n    action = 'REJECT';\n    const match = incomingText.match(/#(\\d+)/);\n    if (match) {\n        postId = match[1];\n        // Extrai o motivo (tudo que vem depois do #ID)\n        rejectionReason = incomingText.replace(/REJEITAR\\s+#\\d+\\s*/i, '').trim() || 'Sem motivo informado';\n    }\n  }\n}\n\nreturn [{\n  json: {\n    ...data,\n    incomingText,\n    action,\n    postId,\n    chatId,\n    rejectionReason\n  }\n}];\n"
+          },
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            -2464,
+            160
+          ],
+          "id": "8406c9d1-e1db-4897-9a7f-1bb3329d765a",
+          "name": "Detect Action"
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "conditions": [
+                {
+                  "id": "24e24111-8bae-4247-a214-9e5b82df8a0a",
+                  "leftValue": "={{ $json.action }}",
+                  "operator": {
+                    "name": "filter.operator.equals",
+                    "operation": "equals",
+                    "type": "string"
+                  },
+                  "rightValue": "APPROVE"
+                }
+              ],
+              "options": {
+                "version": 2,
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "strict"
+              }
+            }
+          },
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "position": [
+            -2240,
+            160
+          ],
+          "id": "05869dc8-adf6-40f3-84eb-4819d1ac6845",
+          "name": "If"
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "options": {
+                "version": 3,
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "loose"
+              },
+              "conditions": [
+                {
+                  "id": "8962423e-cb23-4947-bd07-30d0a2edb673",
+                  "leftValue": "={{ $json.ok }}",
+                  "rightValue": "true",
+                  "operator": {
+                    "type": "boolean",
+                    "operation": "true",
+                    "singleValue": true
+                  }
+                }
+              ],
+              "combinator": "and"
+            },
+            "looseTypeValidation": true,
+            "options": {}
+          },
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "position": [
+            -896,
+            256
+          ],
+          "id": "a389350c-8025-4551-9990-f8ee2a9d076d",
+          "name": "If1"
+        },
+        {
+          "parameters": {
+            "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    ...item,\n    ok: Boolean(item.ok)\n  }\n}];"
+          },
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            -1120,
+            256
+          ],
+          "id": "82d6cd52-39c9-441a-a03b-9426213f2bc6",
+          "name": "Normalize OK Boolean"
+        },
+        {
+          "parameters": {
+            "documentId": {
+              "__rl": true,
+              "value": "1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY",
+              "mode": "list",
+              "cachedResultName": "Posts Memory",
+              "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit?usp=drivesdk"
+            },
+            "sheetName": {
+              "__rl": true,
+              "value": "gid=0",
+              "mode": "list",
+              "cachedResultName": "Página1",
+              "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit#gid=0"
+            },
+            "filtersUI": {
+              "values": [
+                {
+                  "lookupColumn": "post_id",
+                  "lookupValue": "={{ $('Extract Rejection Data').first().json.postId }}"
+                }
+              ]
+            },
+            "options": {}
+          },
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4.7,
+          "position": [
+            -1568,
+            256
+          ],
+          "id": "2c4a76bf-9719-486a-be83-b5fe78e055a6",
+          "name": "Get row(s) in sheet",
+          "alwaysOutputData": true,
+          "credentials": {
+            "googleSheetsOAuth2Api": {
+              "id": "Du4hkxIVIISxwDe8",
+              "name": "Google Sheets account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "updates": [
+              "message",
+              "callback_query"
+            ]
+          },
+          "type": "n8n-nodes-base.telegramTrigger",
+          "typeVersion": 1.2,
+          "position": [
+            -2688,
+            160
+          ],
+          "id": "9ffa4c19-748d-4196-8b30-36a04c17e34d",
+          "name": "Telegram Trigger",
+          "webhookId": "68b99e40-7589-41de-bdcf-0749a02ce1bc",
+          "credentials": {
+            "telegramApi": {
+              "id": "VX0ozi6nMNrpiHJS",
+              "name": "Telegram account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+            "text": "✅ POST PUBLICADO COM SUCESSO!  Os textos para LinkedIn e Instagram já foram enviados na primeira mensagem. Copie e cole nas redes sociais!",
+            "additionalFields": {}
+          },
+          "type": "n8n-nodes-base.telegram",
+          "typeVersion": 1.2,
+          "position": [
+            -1344,
+            64
+          ],
+          "id": "7ae0c42b-d9d0-4159-a7cf-9bdb60377980",
+          "name": "Telegram Send a text message",
+          "webhookId": "dae7a2e0-8806-496c-988b-5b75d97fc53f",
+          "credentials": {
+            "telegramApi": {
+              "id": "VX0ozi6nMNrpiHJS",
+              "name": "Telegram account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// O ID já foi extraído no Detect Action agora\nreturn [{\n  json: {\n    ...$input.first().json\n  }\n}];\n"
+          },
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            -2016,
+            256
+          ],
+          "id": "d5aaf0fc-746d-431d-b9c7-5dad519516d8",
+          "name": "Extract Post ID1"
+        },
+        {
+          "parameters": {
+            "assignments": {
+              "assignments": [
+                {
+                  "id": "18f0a823-8b78-4c4f-8dda-3bd057395adf",
+                  "name": "text",
+                  "value": "=Post {{$('If1').item.json.postId}} foi REJEITADO e removido do WordPress. Motivo: {{$('Extract Rejection Data').first().json.rejectionReason || 'Sem motivo informado'}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "includeOtherFields": true,
+            "options": {}
+          },
+          "type": "n8n-nodes-base.set",
+          "typeVersion": 3.4,
+          "position": [
+            -448,
+            256
+          ],
+          "id": "721eb512-fdd6-4004-ae1c-49ec08d629c8",
+          "name": "Build Rejection Message"
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "https://api.telegram.org/bot8508917784:AAFJzW2NXsKkDa6I4ORDPxwLpHuy5RmVBdE/sendMessage",
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "={\n  \"chat_id\": {{ $('Telegram Trigger').first().json.message.chat.id }},\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"\"\n}",
+            "options": {}
+          },
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.4,
+          "position": [
+            0,
+            0
+          ],
+          "id": "bad6a803-8d62-4087-9d81-73fea71d8d67",
+          "name": "Send TG Rejected (HTTP)"
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "https://api.telegram.org/bot8508917784:AAFJzW2NXsKkDa6I4ORDPxwLpHuy5RmVBdE/sendMessage",
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "={\n  \"chat_id\": {{ $('Telegram Trigger').first().json.message.chat.id }},\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"\"\n}",
+            "options": {}
+          },
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.4,
+          "position": [
+            448,
+            256
+          ],
+          "id": "9ae8b2f0-c8a9-4254-affa-b5c2d6b23383",
+          "name": "Send TG Recreated (HTTP)"
+        },
+        {
+          "parameters": {
+            "assignments": {
+              "assignments": [
+                {
+                  "id": "502d805f-cef5-4800-ae22-89a94c62cc33",
+                  "name": "text",
+                  "value": "=✅ Novo rascunho solicitado. Post rejeitado: {{$('If1').item.json.postId}} Keywords: {{$json.keywords}} Capítulos: {{$json.chapters}} Palavras: {{$json.words}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "options": {}
+          },
+          "type": "n8n-nodes-base.set",
+          "typeVersion": 3.4,
+          "position": [
+            224,
+            256
+          ],
+          "id": "a24e2253-11e2-4629-941f-c3b09326ec0f",
+          "name": "Build Recreated Message"
+        }
+      ],
+      "connections": {
+        "Extract Post ID": {
+          "main": [
+            [
+              {
+                "node": "Publicar Post no WordPress",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Publicar Post no WordPress": {
+          "main": [
+            [
+              {
+                "node": "Telegram Send a text message",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Extract Rejection Data": {
+          "main": [
+            [
+              {
+                "node": "Get row(s) in sheet",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Delete Rejected Post": {
+          "main": [
+            [
+              {
+                "node": "Build Rejection Message",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Trigger New Post Creation": {
+          "main": [
+            [
+              {
+                "node": "Build Recreated Message",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Prepare Rejection Data": {
+          "main": [
+            [
+              {
+                "node": "Normalize OK Boolean",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Detect Action": {
+          "main": [
+            [
+              {
+                "node": "If",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If": {
+          "main": [
+            [
+              {
+                "node": "Extract Post ID",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Extract Post ID1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If1": {
+          "main": [
+            [
+              {
+                "node": "Delete Rejected Post",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize OK Boolean": {
+          "main": [
+            [
+              {
+                "node": "If1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Get row(s) in sheet": {
+          "main": [
+            [
+              {
+                "node": "Prepare Rejection Data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Telegram Trigger": {
+          "main": [
+            [
+              {
+                "node": "Detect Action",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Extract Post ID1": {
+          "main": [
+            [
+              {
+                "node": "Extract Rejection Data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Rejection Message": {
+          "main": [
+            [
+              {
+                "node": "Send TG Rejected (HTTP)",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Trigger New Post Creation",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Recreated Message": {
+          "main": [
+            [
+              {
+                "node": "Send TG Recreated (HTTP)",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "authors": "emerson silva",
+      "name": null,
+      "description": null,
+      "autosaved": false,
+      "workflowPublishHistory": [
+        {
+          "createdAt": "2026-02-11T01:08:10.962Z",
+          "id": 8,
+          "workflowId": "IbG8jCLZxkmR-Yw9JVUQ9",
+          "versionId": "92e2a783-b830-4890-bacc-9369ade597b5",
+          "event": "activated",
+          "userId": "9ed7cfce-6553-4d26-a005-ef76d47034a3"
+        }
+      ]
+    }
+  }
+}

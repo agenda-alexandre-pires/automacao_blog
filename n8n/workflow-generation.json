@@ -1,0 +1,1880 @@
+{
+  "success": true,
+  "data": {
+    "updatedAt": "2026-02-11T03:37:55.544Z",
+    "createdAt": "2026-02-05T19:04:13.800Z",
+    "id": "GEnmEfcIX46R1O769iNxg",
+    "name": "Write a WordPress post with AI  - FORM",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "path": "d5d19ce7-22c8-4e93-b21b-c4bee84f0537",
+          "formTitle": "Create a WordPress post with AI",
+          "formDescription": "Fill this form with the required information to create a draft post on WordPress",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Keywords (comma-separated)",
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Number of chapters",
+                "fieldType": "dropdown",
+                "fieldOptions": {
+                  "values": [
+                    {
+                      "option": "1"
+                    },
+                    {
+                      "option": "2"
+                    },
+                    {
+                      "option": "3"
+                    },
+                    {
+                      "option": "4"
+                    },
+                    {
+                      "option": "5"
+                    },
+                    {
+                      "option": "6"
+                    },
+                    {
+                      "option": "7"
+                    },
+                    {
+                      "option": "8"
+                    },
+                    {
+                      "option": "9"
+                    },
+                    {
+                      "option": "10"
+                    }
+                  ]
+                },
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Max words count",
+                "fieldType": "number",
+                "requiredField": true
+              }
+            ]
+          },
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "8c63176b-c4f5-455a-b8a4-0a4fce7f66c0",
+        "name": "Form",
+        "type": "n8n-nodes-base.formTrigger",
+        "position": [
+          -1248,
+          176
+        ],
+        "webhookId": "d5d19ce7-22c8-4e93-b21b-c4bee84f0537",
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "3a433b0f-9957-4b64-ad81-359ab5e521d5",
+                "name": "wordpress_url",
+                "type": "string",
+                "value": "https://blog.emersonporfaaudio.com.br/"
+              },
+              {
+                "id": "ec5430e3-92c5-46e4-8c2c-c87291680892",
+                "name": "keywords",
+                "type": "string",
+                "value": "={{ $json['Keywords (comma-separated)'] }}"
+              },
+              {
+                "id": "5defb0a2-d921-4909-b10d-da59e1768496",
+                "name": "chapters",
+                "type": "number",
+                "value": "={{ $json['Number of chapters'] }}"
+              },
+              {
+                "id": "230ebd0b-73c2-4265-9b3c-57af7fbc48c8",
+                "name": "words",
+                "type": "number",
+                "value": "={{ $json['Max words count'] }}"
+              },
+              {
+                "id": "cd56e732-64fe-48da-9103-944b7a0c4055",
+                "name": "rejectionContext",
+                "value": "={{ $json.rejectionContext || '' }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "7508a299-903b-470b-ab7e-e0709f17774c",
+        "name": "Settings",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -1024,
+          176
+        ],
+        "typeVersion": 3.3
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "9c8c53ea-6079-48da-9d6e-dd527167b123",
+                "leftValue": "={{ $json.message.content.title }}",
+                "operator": {
+                  "operation": "notEmpty",
+                  "singleValue": true,
+                  "type": "string"
+                },
+                "rightValue": ""
+              },
+              {
+                "id": "a7fabfe1-3539-453a-93d9-8d6d395c3de4",
+                "leftValue": "={{ $json.message.content.chapters }}",
+                "operator": {
+                  "operation": "lengthGte",
+                  "rightType": "number",
+                  "type": "array"
+                },
+                "rightValue": "={{ 1 }}"
+              },
+              {
+                "id": "0a435a69-3699-4b98-b46f-40954c7a7816",
+                "leftValue": "={{ $json.message.content.introduction }}",
+                "operator": {
+                  "operation": "notEmpty",
+                  "singleValue": true,
+                  "type": "string"
+                },
+                "rightValue": ""
+              },
+              {
+                "id": "1a440144-21f3-42bd-9222-774bd564f3ef",
+                "leftValue": "={{ $json.message.content.conclusions }}",
+                "operator": {
+                  "operation": "notEmpty",
+                  "singleValue": true,
+                  "type": "string"
+                },
+                "rightValue": ""
+              },
+              {
+                "id": "834ce92d-b1e9-48ef-ae63-1d0841c900b5",
+                "leftValue": "={{ $json.message.content.imagePrompt }}",
+                "operator": {
+                  "operation": "notEmpty",
+                  "singleValue": true,
+                  "type": "string"
+                },
+                "rightValue": ""
+              }
+            ],
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 1
+            }
+          },
+          "options": {}
+        },
+        "id": "7dfb9474-6906-42a7-a31c-578b2849d943",
+        "name": "Check data consistency",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -384,
+          176
+        ],
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "message.content.chapters",
+          "options": {}
+        },
+        "id": "18b7740e-5e19-413b-ae96-14014522f886",
+        "name": "Split out chapters",
+        "type": "n8n-nodes-base.splitOut",
+        "position": [
+          -224,
+          80
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combinationMode": "mergeByPosition",
+          "options": {}
+        },
+        "id": "f6ae7e1b-6487-4099-8bc8-2ee21b00bd4f",
+        "name": "Merge chapters title and text",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          352,
+          80
+        ],
+        "typeVersion": 2.1
+      },
+      {
+        "parameters": {
+          "jsCode": "let article = \"\";\n\nconst aiData = $('Parse AI JSON').first().json.message.content;\n\n// Introdução\narticle += aiData.introduction || \"\";\narticle += \"<br><br>\";\n\n// Capítulos\nconst chapters = $input.all();\nfor (const item of chapters) {\n article += \"<strong>\" + (item.json.title || \"\") + \"</strong>\";\n article += \"<br><br>\";\n article += (item.json.message.content || \"\");\n article += \"<br><br>\";\n}\n\n// Conclusão\narticle += \"<strong>Conclusão</strong>\";\narticle += \"<br><br>\";\narticle += aiData.conclusions || \"\";\n\nreturn [{\n  json: {\n    article: article\n  },\n  pairedItem: [{ item: 0 }]\n}];"
+        },
+        "id": "a704509e-6719-43ea-acf1-97d721907c91",
+        "name": "Final article text",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          576,
+          80
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "additionalFields": {
+            "content": "={{ $json.article }}",
+            "status": "draft"
+          },
+          "operation": "create",
+          "resource": "post",
+          "title": "={{ $('Parse AI JSON').first().json.message.content.title }}"
+        },
+        "id": "098457cc-5fe9-4e65-a1dd-1a1a4a6fbb99",
+        "name": "Post on Wordpress",
+        "type": "n8n-nodes-base.wordpress",
+        "position": [
+          768,
+          -176
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "wordpressApi": {
+            "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+            "name": "WordpressBlog"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "predefinedCredentialType",
+          "contentType": "binaryData",
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Disposition",
+                "value": "attachment; filename=\"featured_image.jpg\""
+              }
+            ]
+          },
+          "inputDataFieldName": "data",
+          "method": "POST",
+          "nodeCredentialType": "wordpressApi",
+          "options": {
+            "allowUnauthorizedCerts": true
+          },
+          "sendBody": true,
+          "sendHeaders": true,
+          "url": "https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/media"
+        },
+        "id": "0edaa9d8-53ea-41c5-b149-1c2d6e0a96a1",
+        "name": "Upload media",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1472,
+          80
+        ],
+        "typeVersion": 4.1,
+        "credentials": {
+          "wordpressApi": {
+            "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+            "name": "WordpressBlog"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "predefinedCredentialType",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "featured_media",
+                "value": "={{ $('Upload media').first().json.id }}"
+              }
+            ]
+          },
+          "method": "POST",
+          "nodeCredentialType": "wordpressApi",
+          "options": {
+            "allowUnauthorizedCerts": true
+          },
+          "sendBody": true,
+          "url": "https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/posts/{{ $('Post on Wordpress').first().json.id }}"
+        },
+        "id": "ff07646e-915c-4e6c-8001-1dc81a84760a",
+        "name": "Set image ID for the post",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1696,
+          80
+        ],
+        "typeVersion": 4.1,
+        "credentials": {
+          "wordpressApi": {
+            "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+            "name": "WordpressBlog"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n \"formSubmittedText\": \"The article {{ $json.title.rendered }} was correctly created as a draft on WordPress!\"\n}",
+          "options": {}
+        },
+        "id": "c23c415b-70a0-4e5a-ada4-c0ee3cd42a95",
+        "name": "Respond: Success",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          3072,
+          80
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "2aedc340-d652-46c8-a64e-79ff754c365d",
+        "name": "Respond: Error",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          -224,
+          272
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "content": "Splits out chapter contents from the previous node",
+          "height": 80,
+          "width": 185.6051460344073,
+          "color": 7
+        },
+        "id": "a14b8554-e880-4216-bcee-bd7ac090ed58",
+        "name": "Sticky Note17",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -256,
+          368
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "resource": "image",
+          "prompt": "=━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎨 IMAGE GENERATION TASK\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nARTICLE CONTEXT:\nTitle: {{ $('Create post title and structure').all()[0].json.message.content.title }}\nVisual Theme: {{ $('Create post title and structure').all()[0].json.message.content.imagePrompt }}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 VISUAL STYLE SPECIFICATION\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nSTYLE: Professional illustrated photography\n- Semi-realistic illustration with photographic base\n- Clean, modern, slightly stylized aesthetic\n- Studio quality lighting with artistic enhancement\n- Rich, vibrant colors that catch attention\n- Sharp focus on main equipment\n- Subtle depth of field for visual interest\n\nREFERENCE STYLES:\n- High-end product marketing illustrations\n- Apple product promotional imagery\n- Modern tech editorial illustrations\n- Premium audio brand catalogs\n\nMOOD: Professional, modern, impactful, eye-catching\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎛️ EQUIPMENT & COMPOSITION\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nFEATURED EQUIPMENT (choose based on article topic):\n- Professional mixing console (analog or digital)\n- Studio reference monitors\n- Condenser microphones\n- Audio interface\n- Acoustic treatment panels\n- Headphones (professional grade)\n- Outboard gear (compressors, EQs)\n\nCOMPOSITION RULES:\n✅ Clean, uncluttered arrangement\n✅ 1-3 main pieces of equipment maximum\n✅ Professional studio environment (subtle background)\n✅ Dramatic lighting that highlights key elements\n✅ Warm, inviting color palette\n✅ Depth and dimension\n\n❌ NO people or hands visible\n❌ NO cluttered or messy backgrounds\n❌ NO cartoon/anime style\n❌ NO abstract or surreal elements\n❌ NO low-quality or amateur equipment\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💡 LIGHTING & ATMOSPHERE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nLIGHTING SETUP:\n- Soft, professional studio lighting\n- Subtle rim lighting for definition\n- Warm color temperature (inviting feel)\n- Controlled shadows for depth\n- Highlight metallic and glossy surfaces\n\nATMOSPHERE:\n- Professional but approachable\n- High-end without being intimidating\n- Clean and modern aesthetic\n- Focus-drawing without distraction\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📸 TECHNICAL PARAMETERS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCamera simulation: Professional DSLR\nLens: 50mm prime lens\nAperture: f/2.8 (slight background blur)\nFocus: Tack-sharp on main subject\nResolution: High-definition quality\nPerspective: Slightly elevated, engaging angle\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎨 COLOR & FINISH\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCOLOR PALETTE:\n- Rich, saturated but natural tones\n- Warm undertones (professional warmth)\n- Dark/neutral background to make equipment pop\n- Accent colors from LED displays or buttons\n- Premium feel through color choices\n\nFINISH:\n- Semi-matte illustration style\n- Photographic detail with artistic enhancement\n- Clean edges and defined forms\n- Professional commercial quality\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n✨ IMPACT FACTORS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nMake it eye-catching through:\n- Strong visual hierarchy (clear focal point)\n- Contrast between subject and background\n- Dynamic but balanced composition\n- Professional sophistication\n- Immediate recognition of audio gear\n- Clean, modern appeal\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nFINAL PROMPT FORMULA:\n\"Professional illustrated photography of [EQUIPMENT] in modern recording studio, semi-realistic style with enhanced colors, dramatic studio lighting, f/2.8 depth of field, clean composition, dark neutral background, high-end commercial quality, no people, photographic detail with artistic styling, warm professional atmosphere\"\n\nGenerate the image following these specifications.",
+          "options": {
+            "size": "1792x1024",
+            "style": "natural"
+          }
+        },
+        "id": "79ea0230-d99f-45d0-a5aa-b962737d405d",
+        "name": "Generate featured image",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          1248,
+          80
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "XOqL0kyWGcEGHM2f",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "id": "181dcba2-19a1-4c13-a941-9d81546def77",
+        "name": "Wikipedia",
+        "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+        "position": [
+          -720,
+          400
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4.1-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4.1-MINI"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "={{ $('Settings').first().json.rejectionContext\n? `\n⚠️ REVISÃO DE CONTEÚDO (POST REJEITADO)\nFeedback do Emerson: ${$('Settings').first().json.rejectionContext}\nMantenha os parâmetros: ${$('Settings').first().json.keywords}\n`\n: `\n📝 NOVO POST PARA O BLOG\nAssunto: ${$json.keywords}\n`\n}}\n\nPERSONA (Obrigatório): \nVocê é o Emerson Porfa, 35 anos de áudio (estúdio e P.A.). \n- Seu público: Profissionais de áudio, a maioria autodidata. Eles querem solução prática, não teoria de livro.\n- Tom: Direto, \\\"pé no chão\\\", profissional mas sem frescura. Como um mentor falando com quem está na bancada.\n- Linguagem: Use a gíria técnica do Brasil (micar, sobra, lama, embolado, abrir o brilho, punch).\n\nREGRAS DE ESCRITA:\n1. NUNCA comece com \\\"Neste artigo...\\\" ou \\\"Vamos explorar...\\\". Comece com uma verdade do campo ou uma dúvida comum.\n2. Fuja de conclusões genéricas (ex: \\\"Em resumo...\\\", \\\"Portanto...\\\"). Termine com um conselho prático.\n3. Se o assunto for técnico, explique o *sentimento* do som (ex: \\\"grave solto\\\", \\\"médio fanhoso\\\"), não a frequência exata em Hz a menos que seja vital.\n4. Estruture para leitura rápida (parágrafos curtos).\n\nESTRUTURA JSON (Respeite rigorosamente):\n{\n  \\\"title\\\": \\\"Título curto (estilo manchete de quem entende)\\\",\n  \\\"slug\\\": \\\"url-amigavel\\\",\n  \\\"focusKeyword\\\": \\\"palavra-chave\\\",\n  \\\"metaDescription\\\": \\\"150-160 caracteres focados em clique\\\",\n  \\\"introduction\\\": \\\"Texto de entrada forte e humano\\\",\n  \\\"chapters\\\": [\n    { \\\"title\\\": \\\"Título do Capítulo\\\", \\\"prompt\\\": \\\"Instrução prática: o que o Emerson diria sobre isso?\\\" }\n  ],\n  \\\"conclusions\\\": \\\"Conselho final de quem já carregou muito case\\\",\n  \\\"imagePrompt\\\": \\\"Professional audio gear, artistic illustration, dramatic lighting, warm tones, high contrast, studio environment, no people\\\",\n  \\\"imageAlt\\\": \\\"Descrição SEO da imagem\\\"\n}\n\nIdioma: Português do Brasil."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "9fa896df-3380-451f-8975-f51b5380d373",
+        "name": "Create post title and structure",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          -848,
+          176
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "XOqL0kyWGcEGHM2f",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4.1-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4.1-MINI"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "Você é o Emerson Porfa (35 anos de áudio). Escreva este capítulo: {{ $json.title }}.\n\nDIRETRIZES DE CONTEÚDO:\n1. FOCO NO AUTODIDATA: Explique como se estivesse do lado do cara na mesa de som. Menos matemática, mais \"feeling\".\n2. ESTILO: Use frases curtas. Se for pra dar bronca em erro comum, dê. \n3. TERMOS: Use 'micar', 'gain stage', 'sobra', 'fase cancelando' de um jeito natural.\n4. ESTRUTURA: Evite o \"texto de robô\". Se for fazer lista, use no máximo 3 itens. Prefira contar como você resolve isso na \"estrada\".\n5. ZERO CLICHÊ: Proibido \"No mundo do áudio de hoje...\", \"É fundamental entender...\". Vá direto ao ponto.\n\nFORMATO: HTML puro (<strong>, <em>, <ul>, <li>). Sem tags <html> ou <body>.\nIdioma: PT-BR."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "42c70394-9721-4c23-9f2b-8b7a375fc3fc",
+        "name": "Create chapters text",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          0,
+          0
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "XOqL0kyWGcEGHM2f",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4.1-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4.1-MINI"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "Crie um post curto para LinkedIn sobre o post: {{ $json.title.rendered }}\n\nESTILO:\n- Gancho rápido (Curiosidade ou Problema).\n- 2 a 3 linhas de texto (Opinião do Emerson).\n- Chamada: \"Link completo nos comentários!\"\n- Hashtags: #AudioProfissional #EmersonPorfa #AudioBrasil e +2 do tema.\n- Curto, humano, sem emojis em excesso."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "e37dfb6f-85f4-4139-abe4-563410aeaf8c",
+        "name": "Generate LinkedIn Text",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          1920,
+          80
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "XOqL0kyWGcEGHM2f",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4.1-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4.1-MINI"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "Crie uma legenda curta para Instagram:\n- Gancho impactante na primeira linha.\n- Texto curtíssimo (máximo 60 palavras).\n- CTA: \"Link na Bio!\"\n- Hashtags: #AudioProfissional #EmersonPorfa + temas.\n- Tom: Direto, como um story escrito."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "a82d6c0f-04d9-4ce6-a97a-c9fb8eaf2a12",
+        "name": "Generate Instagram Text",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          2272,
+          80
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "XOqL0kyWGcEGHM2f",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY",
+            "mode": "list",
+            "cachedResultName": "Posts Memory",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Página1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "post_id": "={{ $('Post on Wordpress').first().json.id }}",
+              "keywords": "={{ $('Settings').first().json.keywords }}",
+              "chapters": "={{ $('Settings').first().json.chapters }}",
+              "words": "={{ $('Settings').first().json.words }}"
+            },
+            "matchingColumns": [
+              "post_id"
+            ],
+            "schema": [
+              {
+                "id": "post_id",
+                "displayName": "post_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "keywords",
+                "displayName": "keywords",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "chapters",
+                "displayName": "chapters",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "words",
+                "displayName": "words",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1008,
+          80
+        ],
+        "id": "6637a8e9-05f5-4403-a4f8-e78acb64d6ec",
+        "name": "Append or update row in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "Du4hkxIVIISxwDe8",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const postId = $('Post on Wordpress').first().json.id;\nconst title = $('Create post title and structure').first().json.message.content.title;\nconst linkedinText = $('Generate LinkedIn Text').first().json.message.content;\nconst instagramText = $('Generate Instagram Text').first().json.message.content;\n\nconst message = `*🎯 POST PRONTO (#${postId})*\\n\\n*${title}*\\n\\n🔗 *Rascunho:* [Ver no WP](https://blog.emersonporfaaudio.com.br/wp-admin/post.php?post=${postId}&action=edit)\\n\\n━━━━━━━━━━━━━━\\n*📱 LINKEDIN:*\\n${linkedinText}\\n\\n━━━━━━━━━━━━━━\\n*📸 INSTAGRAM:*\\n${instagramText}\\n\\n━━━━━━━━━━━━━━\\nEscolha uma ação:`;\n\nconst reply_markup = {\n  inline_keyboard: [\n    [\n      { text: \"✅ APROVAR\", callback_data: \"APPROVE#\" + postId },\n      { text: \"❌ REJEITAR\", callback_data: \"REJECT#\" + postId }\n    ]\n  ]\n};\n\nreturn [{\n  json: {\n    chatId: \"731625851\",\n    messageText: message,\n    reply_markup: reply_markup\n  }\n}];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2624,
+          80
+        ],
+        "id": "2d516ca8-ac6c-43c1-a027-b1472f97514a",
+        "name": "Prepare Telegram Message"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "options": {
+            "allowUnauthorizedCerts": true
+          },
+          "sendBody": true,
+          "url": "https://api.telegram.org/bot8508917784:AAFJzW2NXsKkDa6I4ORDPxwLpHuy5RmVBdE/sendMessage?chat_id=-1002360830491&text={{ encodeURIComponent('Novo post criado: ' + $('Post on Wordpress').first().json.title.rendered) }}"
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          2832,
+          80
+        ],
+        "id": "8e6da25a-5499-433d-8879-8822682fe49b",
+        "name": "Send Telegram Approval"
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\nlet content = item.message.content;\n\nif (typeof content === 'string') {\n  try {\n    content = content.replace(/```json/g, '').replace(/```/g, '').trim();\n    content = JSON.parse(content);\n  } catch (e) {\n    throw new Error('A IA não gerou um JSON válido: ' + e.message);\n  }\n}\n\nreturn [{\n  json: {\n    ...item,\n    message: {\n      ...item.message,\n      content: content\n    }\n  }\n}];"
+        },
+        "id": "parse-ai-json-form-v2",
+        "name": "Parse AI JSON",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -576,
+          176
+        ]
+      }
+    ],
+    "connections": {
+      "Form": {
+        "main": [
+          [
+            {
+              "node": "Settings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Settings": {
+        "main": [
+          [
+            {
+              "node": "Create post title and structure",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wikipedia": {
+        "ai_tool": [
+          [
+            {
+              "node": "Create post title and structure",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload media": {
+        "main": [
+          [
+            {
+              "node": "Set image ID for the post",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split out chapters": {
+        "main": [
+          [
+            {
+              "node": "Merge chapters title and text",
+              "type": "main",
+              "index": 1
+            },
+            {
+              "node": "Create chapters text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create chapters text": {
+        "main": [
+          [
+            {
+              "node": "Merge chapters title and text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check data consistency": {
+        "main": [
+          [
+            {
+              "node": "Split out chapters",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond: Error",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate featured image": {
+        "main": [
+          [
+            {
+              "node": "Upload media",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set image ID for the post": {
+        "main": [
+          [
+            {
+              "node": "Generate LinkedIn Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge chapters title and text": {
+        "main": [
+          [
+            {
+              "node": "Final article text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create post title and structure": {
+        "main": [
+          [
+            {
+              "node": "Parse AI JSON",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate LinkedIn Text": {
+        "main": [
+          [
+            {
+              "node": "Generate Instagram Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Instagram Text": {
+        "main": [
+          [
+            {
+              "node": "Prepare Telegram Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Append or update row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Generate featured image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Telegram Message": {
+        "main": [
+          [
+            {
+              "node": "Send Telegram Approval",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Telegram Approval": {
+        "main": [
+          [
+            {
+              "node": "Respond: Success",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse AI JSON": {
+        "main": [
+          [
+            {
+              "node": "Check data consistency",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Final article text": {
+        "main": [
+          [
+            {
+              "node": "Post on Wordpress",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Post on Wordpress": {
+        "main": [
+          [
+            {
+              "node": "Append or update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false,
+      "callerPolicy": "workflowsFromSameOwner"
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
+    "activeVersionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
+    "versionCounter": 92,
+    "triggerCount": 1,
+    "shared": [
+      {
+        "updatedAt": "2026-02-05T19:04:13.808Z",
+        "createdAt": "2026-02-05T19:04:13.808Z",
+        "role": "workflow:owner",
+        "workflowId": "GEnmEfcIX46R1O769iNxg",
+        "projectId": "NlpanYkmlqAeP07K",
+        "project": {
+          "updatedAt": "2026-02-05T19:02:18.139Z",
+          "createdAt": "2026-02-05T18:37:11.829Z",
+          "id": "NlpanYkmlqAeP07K",
+          "name": "emerson silva <porfamail@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "9ed7cfce-6553-4d26-a005-ef76d47034a3",
+          "projectRelations": [
+            {
+              "updatedAt": "2026-02-05T18:37:11.832Z",
+              "createdAt": "2026-02-05T18:37:11.832Z",
+              "userId": "9ed7cfce-6553-4d26-a005-ef76d47034a3",
+              "projectId": "NlpanYkmlqAeP07K",
+              "user": {
+                "updatedAt": "2026-02-11T03:06:48.000Z",
+                "createdAt": "2026-02-05T18:37:11.132Z",
+                "id": "9ed7cfce-6553-4d26-a005-ef76d47034a3",
+                "email": "porfamail@gmail.com",
+                "firstName": "emerson",
+                "lastName": "silva",
+                "personalizationAnswers": {
+                  "version": "v4",
+                  "personalization_survey_submitted_at": "2026-02-05T19:02:21.334Z",
+                  "personalization_survey_n8n_version": "2.6.3"
+                },
+                "settings": {
+                  "userActivated": false,
+                  "easyAIWorkflowOnboarded": true
+                },
+                "disabled": false,
+                "mfaEnabled": false,
+                "lastActiveAt": "2026-02-10",
+                "isPending": false
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "tags": [],
+    "activeVersion": {
+      "updatedAt": "2026-02-11T03:37:55.545Z",
+      "createdAt": "2026-02-11T03:37:55.545Z",
+      "versionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
+      "workflowId": "GEnmEfcIX46R1O769iNxg",
+      "nodes": [
+        {
+          "parameters": {
+            "path": "d5d19ce7-22c8-4e93-b21b-c4bee84f0537",
+            "formTitle": "Create a WordPress post with AI",
+            "formDescription": "Fill this form with the required information to create a draft post on WordPress",
+            "formFields": {
+              "values": [
+                {
+                  "fieldLabel": "Keywords (comma-separated)",
+                  "requiredField": true
+                },
+                {
+                  "fieldLabel": "Number of chapters",
+                  "fieldType": "dropdown",
+                  "fieldOptions": {
+                    "values": [
+                      {
+                        "option": "1"
+                      },
+                      {
+                        "option": "2"
+                      },
+                      {
+                        "option": "3"
+                      },
+                      {
+                        "option": "4"
+                      },
+                      {
+                        "option": "5"
+                      },
+                      {
+                        "option": "6"
+                      },
+                      {
+                        "option": "7"
+                      },
+                      {
+                        "option": "8"
+                      },
+                      {
+                        "option": "9"
+                      },
+                      {
+                        "option": "10"
+                      }
+                    ]
+                  },
+                  "requiredField": true
+                },
+                {
+                  "fieldLabel": "Max words count",
+                  "fieldType": "number",
+                  "requiredField": true
+                }
+              ]
+            },
+            "responseMode": "responseNode",
+            "options": {}
+          },
+          "id": "8c63176b-c4f5-455a-b8a4-0a4fce7f66c0",
+          "name": "Form",
+          "type": "n8n-nodes-base.formTrigger",
+          "position": [
+            -1248,
+            176
+          ],
+          "webhookId": "d5d19ce7-22c8-4e93-b21b-c4bee84f0537",
+          "typeVersion": 2
+        },
+        {
+          "parameters": {
+            "assignments": {
+              "assignments": [
+                {
+                  "id": "3a433b0f-9957-4b64-ad81-359ab5e521d5",
+                  "name": "wordpress_url",
+                  "type": "string",
+                  "value": "https://blog.emersonporfaaudio.com.br/"
+                },
+                {
+                  "id": "ec5430e3-92c5-46e4-8c2c-c87291680892",
+                  "name": "keywords",
+                  "type": "string",
+                  "value": "={{ $json['Keywords (comma-separated)'] }}"
+                },
+                {
+                  "id": "5defb0a2-d921-4909-b10d-da59e1768496",
+                  "name": "chapters",
+                  "type": "number",
+                  "value": "={{ $json['Number of chapters'] }}"
+                },
+                {
+                  "id": "230ebd0b-73c2-4265-9b3c-57af7fbc48c8",
+                  "name": "words",
+                  "type": "number",
+                  "value": "={{ $json['Max words count'] }}"
+                },
+                {
+                  "id": "cd56e732-64fe-48da-9103-944b7a0c4055",
+                  "name": "rejectionContext",
+                  "value": "={{ $json.rejectionContext || '' }}",
+                  "type": "string"
+                }
+              ]
+            },
+            "options": {}
+          },
+          "id": "7508a299-903b-470b-ab7e-e0709f17774c",
+          "name": "Settings",
+          "type": "n8n-nodes-base.set",
+          "position": [
+            -1024,
+            176
+          ],
+          "typeVersion": 3.3
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "combinator": "and",
+              "conditions": [
+                {
+                  "id": "9c8c53ea-6079-48da-9d6e-dd527167b123",
+                  "leftValue": "={{ $json.message.content.title }}",
+                  "operator": {
+                    "operation": "notEmpty",
+                    "singleValue": true,
+                    "type": "string"
+                  },
+                  "rightValue": ""
+                },
+                {
+                  "id": "a7fabfe1-3539-453a-93d9-8d6d395c3de4",
+                  "leftValue": "={{ $json.message.content.chapters }}",
+                  "operator": {
+                    "operation": "lengthGte",
+                    "rightType": "number",
+                    "type": "array"
+                  },
+                  "rightValue": "={{ 1 }}"
+                },
+                {
+                  "id": "0a435a69-3699-4b98-b46f-40954c7a7816",
+                  "leftValue": "={{ $json.message.content.introduction }}",
+                  "operator": {
+                    "operation": "notEmpty",
+                    "singleValue": true,
+                    "type": "string"
+                  },
+                  "rightValue": ""
+                },
+                {
+                  "id": "1a440144-21f3-42bd-9222-774bd564f3ef",
+                  "leftValue": "={{ $json.message.content.conclusions }}",
+                  "operator": {
+                    "operation": "notEmpty",
+                    "singleValue": true,
+                    "type": "string"
+                  },
+                  "rightValue": ""
+                },
+                {
+                  "id": "834ce92d-b1e9-48ef-ae63-1d0841c900b5",
+                  "leftValue": "={{ $json.message.content.imagePrompt }}",
+                  "operator": {
+                    "operation": "notEmpty",
+                    "singleValue": true,
+                    "type": "string"
+                  },
+                  "rightValue": ""
+                }
+              ],
+              "options": {
+                "caseSensitive": true,
+                "leftValue": "",
+                "typeValidation": "strict",
+                "version": 1
+              }
+            },
+            "options": {}
+          },
+          "id": "7dfb9474-6906-42a7-a31c-578b2849d943",
+          "name": "Check data consistency",
+          "type": "n8n-nodes-base.if",
+          "position": [
+            -384,
+            176
+          ],
+          "typeVersion": 2
+        },
+        {
+          "parameters": {
+            "fieldToSplitOut": "message.content.chapters",
+            "options": {}
+          },
+          "id": "18b7740e-5e19-413b-ae96-14014522f886",
+          "name": "Split out chapters",
+          "type": "n8n-nodes-base.splitOut",
+          "position": [
+            -224,
+            80
+          ],
+          "typeVersion": 1
+        },
+        {
+          "parameters": {
+            "mode": "combine",
+            "combinationMode": "mergeByPosition",
+            "options": {}
+          },
+          "id": "f6ae7e1b-6487-4099-8bc8-2ee21b00bd4f",
+          "name": "Merge chapters title and text",
+          "type": "n8n-nodes-base.merge",
+          "position": [
+            352,
+            80
+          ],
+          "typeVersion": 2.1
+        },
+        {
+          "parameters": {
+            "jsCode": "let article = \"\";\n\nconst aiData = $('Parse AI JSON').first().json.message.content;\n\n// Introdução\narticle += aiData.introduction || \"\";\narticle += \"<br><br>\";\n\n// Capítulos\nconst chapters = $input.all();\nfor (const item of chapters) {\n article += \"<strong>\" + (item.json.title || \"\") + \"</strong>\";\n article += \"<br><br>\";\n article += (item.json.message.content || \"\");\n article += \"<br><br>\";\n}\n\n// Conclusão\narticle += \"<strong>Conclusão</strong>\";\narticle += \"<br><br>\";\narticle += aiData.conclusions || \"\";\n\nreturn [{\n  json: {\n    article: article\n  },\n  pairedItem: [{ item: 0 }]\n}];"
+          },
+          "id": "a704509e-6719-43ea-acf1-97d721907c91",
+          "name": "Final article text",
+          "type": "n8n-nodes-base.code",
+          "position": [
+            576,
+            80
+          ],
+          "typeVersion": 1
+        },
+        {
+          "parameters": {
+            "additionalFields": {
+              "content": "={{ $json.article }}",
+              "status": "draft"
+            },
+            "operation": "create",
+            "resource": "post",
+            "title": "={{ $('Parse AI JSON').first().json.message.content.title }}"
+          },
+          "id": "098457cc-5fe9-4e65-a1dd-1a1a4a6fbb99",
+          "name": "Post on Wordpress",
+          "type": "n8n-nodes-base.wordpress",
+          "position": [
+            768,
+            -176
+          ],
+          "typeVersion": 1,
+          "credentials": {
+            "wordpressApi": {
+              "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+              "name": "WordpressBlog"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "authentication": "predefinedCredentialType",
+            "contentType": "binaryData",
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Content-Disposition",
+                  "value": "attachment; filename=\"featured_image.jpg\""
+                }
+              ]
+            },
+            "inputDataFieldName": "data",
+            "method": "POST",
+            "nodeCredentialType": "wordpressApi",
+            "options": {
+              "allowUnauthorizedCerts": true
+            },
+            "sendBody": true,
+            "sendHeaders": true,
+            "url": "https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/media"
+          },
+          "id": "0edaa9d8-53ea-41c5-b149-1c2d6e0a96a1",
+          "name": "Upload media",
+          "type": "n8n-nodes-base.httpRequest",
+          "position": [
+            1472,
+            80
+          ],
+          "typeVersion": 4.1,
+          "credentials": {
+            "wordpressApi": {
+              "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+              "name": "WordpressBlog"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "authentication": "predefinedCredentialType",
+            "bodyParameters": {
+              "parameters": [
+                {
+                  "name": "featured_media",
+                  "value": "={{ $('Upload media').first().json.id }}"
+                }
+              ]
+            },
+            "method": "POST",
+            "nodeCredentialType": "wordpressApi",
+            "options": {
+              "allowUnauthorizedCerts": true
+            },
+            "sendBody": true,
+            "url": "https://blog.emersonporfaaudio.com.br/wp-json/wp/v2/posts/{{ $('Post on Wordpress').first().json.id }}"
+          },
+          "id": "ff07646e-915c-4e6c-8001-1dc81a84760a",
+          "name": "Set image ID for the post",
+          "type": "n8n-nodes-base.httpRequest",
+          "position": [
+            1696,
+            80
+          ],
+          "typeVersion": 4.1,
+          "credentials": {
+            "wordpressApi": {
+              "id": "a3b604f4-26f9-4160-a195-8f60edb5c0cd",
+              "name": "WordpressBlog"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "respondWith": "json",
+            "responseBody": "={\n \"formSubmittedText\": \"The article {{ $json.title.rendered }} was correctly created as a draft on WordPress!\"\n}",
+            "options": {}
+          },
+          "id": "c23c415b-70a0-4e5a-ada4-c0ee3cd42a95",
+          "name": "Respond: Success",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "position": [
+            3072,
+            80
+          ],
+          "typeVersion": 1
+        },
+        {
+          "parameters": {
+            "options": {}
+          },
+          "id": "2aedc340-d652-46c8-a64e-79ff754c365d",
+          "name": "Respond: Error",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "position": [
+            -224,
+            272
+          ],
+          "typeVersion": 1
+        },
+        {
+          "parameters": {
+            "content": "Splits out chapter contents from the previous node",
+            "height": 80,
+            "width": 185.6051460344073,
+            "color": 7
+          },
+          "id": "a14b8554-e880-4216-bcee-bd7ac090ed58",
+          "name": "Sticky Note17",
+          "type": "n8n-nodes-base.stickyNote",
+          "position": [
+            -256,
+            368
+          ],
+          "typeVersion": 1
+        },
+        {
+          "parameters": {
+            "resource": "image",
+            "prompt": "=━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎨 IMAGE GENERATION TASK\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nARTICLE CONTEXT:\nTitle: {{ $('Create post title and structure').all()[0].json.message.content.title }}\nVisual Theme: {{ $('Create post title and structure').all()[0].json.message.content.imagePrompt }}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 VISUAL STYLE SPECIFICATION\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nSTYLE: Professional illustrated photography\n- Semi-realistic illustration with photographic base\n- Clean, modern, slightly stylized aesthetic\n- Studio quality lighting with artistic enhancement\n- Rich, vibrant colors that catch attention\n- Sharp focus on main equipment\n- Subtle depth of field for visual interest\n\nREFERENCE STYLES:\n- High-end product marketing illustrations\n- Apple product promotional imagery\n- Modern tech editorial illustrations\n- Premium audio brand catalogs\n\nMOOD: Professional, modern, impactful, eye-catching\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎛️ EQUIPMENT & COMPOSITION\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nFEATURED EQUIPMENT (choose based on article topic):\n- Professional mixing console (analog or digital)\n- Studio reference monitors\n- Condenser microphones\n- Audio interface\n- Acoustic treatment panels\n- Headphones (professional grade)\n- Outboard gear (compressors, EQs)\n\nCOMPOSITION RULES:\n✅ Clean, uncluttered arrangement\n✅ 1-3 main pieces of equipment maximum\n✅ Professional studio environment (subtle background)\n✅ Dramatic lighting that highlights key elements\n✅ Warm, inviting color palette\n✅ Depth and dimension\n\n❌ NO people or hands visible\n❌ NO cluttered or messy backgrounds\n❌ NO cartoon/anime style\n❌ NO abstract or surreal elements\n❌ NO low-quality or amateur equipment\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💡 LIGHTING & ATMOSPHERE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nLIGHTING SETUP:\n- Soft, professional studio lighting\n- Subtle rim lighting for definition\n- Warm color temperature (inviting feel)\n- Controlled shadows for depth\n- Highlight metallic and glossy surfaces\n\nATMOSPHERE:\n- Professional but approachable\n- High-end without being intimidating\n- Clean and modern aesthetic\n- Focus-drawing without distraction\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📸 TECHNICAL PARAMETERS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCamera simulation: Professional DSLR\nLens: 50mm prime lens\nAperture: f/2.8 (slight background blur)\nFocus: Tack-sharp on main subject\nResolution: High-definition quality\nPerspective: Slightly elevated, engaging angle\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎨 COLOR & FINISH\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCOLOR PALETTE:\n- Rich, saturated but natural tones\n- Warm undertones (professional warmth)\n- Dark/neutral background to make equipment pop\n- Accent colors from LED displays or buttons\n- Premium feel through color choices\n\nFINISH:\n- Semi-matte illustration style\n- Photographic detail with artistic enhancement\n- Clean edges and defined forms\n- Professional commercial quality\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n✨ IMPACT FACTORS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nMake it eye-catching through:\n- Strong visual hierarchy (clear focal point)\n- Contrast between subject and background\n- Dynamic but balanced composition\n- Professional sophistication\n- Immediate recognition of audio gear\n- Clean, modern appeal\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nFINAL PROMPT FORMULA:\n\"Professional illustrated photography of [EQUIPMENT] in modern recording studio, semi-realistic style with enhanced colors, dramatic studio lighting, f/2.8 depth of field, clean composition, dark neutral background, high-end commercial quality, no people, photographic detail with artistic styling, warm professional atmosphere\"\n\nGenerate the image following these specifications.",
+            "options": {
+              "size": "1792x1024",
+              "style": "natural"
+            }
+          },
+          "id": "79ea0230-d99f-45d0-a5aa-b962737d405d",
+          "name": "Generate featured image",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "position": [
+            1248,
+            80
+          ],
+          "typeVersion": 1,
+          "credentials": {
+            "openAiApi": {
+              "id": "XOqL0kyWGcEGHM2f",
+              "name": "OpenAi account"
+            }
+          }
+        },
+        {
+          "parameters": {},
+          "id": "181dcba2-19a1-4c13-a941-9d81546def77",
+          "name": "Wikipedia",
+          "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+          "position": [
+            -720,
+            400
+          ],
+          "typeVersion": 1
+        },
+        {
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "messages": {
+              "values": [
+                {
+                  "content": "={{ $('Settings').first().json.rejectionContext\n? `\n⚠️ REVISÃO DE CONTEÚDO (POST REJEITADO)\nFeedback do Emerson: ${$('Settings').first().json.rejectionContext}\nMantenha os parâmetros: ${$('Settings').first().json.keywords}\n`\n: `\n📝 NOVO POST PARA O BLOG\nAssunto: ${$json.keywords}\n`\n}}\n\nPERSONA (Obrigatório): \nVocê é o Emerson Porfa, 35 anos de áudio (estúdio e P.A.). \n- Seu público: Profissionais de áudio, a maioria autodidata. Eles querem solução prática, não teoria de livro.\n- Tom: Direto, \\\"pé no chão\\\", profissional mas sem frescura. Como um mentor falando com quem está na bancada.\n- Linguagem: Use a gíria técnica do Brasil (micar, sobra, lama, embolado, abrir o brilho, punch).\n\nREGRAS DE ESCRITA:\n1. NUNCA comece com \\\"Neste artigo...\\\" ou \\\"Vamos explorar...\\\". Comece com uma verdade do campo ou uma dúvida comum.\n2. Fuja de conclusões genéricas (ex: \\\"Em resumo...\\\", \\\"Portanto...\\\"). Termine com um conselho prático.\n3. Se o assunto for técnico, explique o *sentimento* do som (ex: \\\"grave solto\\\", \\\"médio fanhoso\\\"), não a frequência exata em Hz a menos que seja vital.\n4. Estruture para leitura rápida (parágrafos curtos).\n\nESTRUTURA JSON (Respeite rigorosamente):\n{\n  \\\"title\\\": \\\"Título curto (estilo manchete de quem entende)\\\",\n  \\\"slug\\\": \\\"url-amigavel\\\",\n  \\\"focusKeyword\\\": \\\"palavra-chave\\\",\n  \\\"metaDescription\\\": \\\"150-160 caracteres focados em clique\\\",\n  \\\"introduction\\\": \\\"Texto de entrada forte e humano\\\",\n  \\\"chapters\\\": [\n    { \\\"title\\\": \\\"Título do Capítulo\\\", \\\"prompt\\\": \\\"Instrução prática: o que o Emerson diria sobre isso?\\\" }\n  ],\n  \\\"conclusions\\\": \\\"Conselho final de quem já carregou muito case\\\",\n  \\\"imagePrompt\\\": \\\"Professional audio gear, artistic illustration, dramatic lighting, warm tones, high contrast, studio environment, no people\\\",\n  \\\"imageAlt\\\": \\\"Descrição SEO da imagem\\\"\n}\n\nIdioma: Português do Brasil."
+                }
+              ]
+            },
+            "options": {}
+          },
+          "id": "9fa896df-3380-451f-8975-f51b5380d373",
+          "name": "Create post title and structure",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "position": [
+            -848,
+            176
+          ],
+          "typeVersion": 1,
+          "credentials": {
+            "openAiApi": {
+              "id": "XOqL0kyWGcEGHM2f",
+              "name": "OpenAi account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "messages": {
+              "values": [
+                {
+                  "content": "Você é o Emerson Porfa (35 anos de áudio). Escreva este capítulo: {{ $json.title }}.\n\nDIRETRIZES DE CONTEÚDO:\n1. FOCO NO AUTODIDATA: Explique como se estivesse do lado do cara na mesa de som. Menos matemática, mais \"feeling\".\n2. ESTILO: Use frases curtas. Se for pra dar bronca em erro comum, dê. \n3. TERMOS: Use 'micar', 'gain stage', 'sobra', 'fase cancelando' de um jeito natural.\n4. ESTRUTURA: Evite o \"texto de robô\". Se for fazer lista, use no máximo 3 itens. Prefira contar como você resolve isso na \"estrada\".\n5. ZERO CLICHÊ: Proibido \"No mundo do áudio de hoje...\", \"É fundamental entender...\". Vá direto ao ponto.\n\nFORMATO: HTML puro (<strong>, <em>, <ul>, <li>). Sem tags <html> ou <body>.\nIdioma: PT-BR."
+                }
+              ]
+            },
+            "options": {}
+          },
+          "id": "42c70394-9721-4c23-9f2b-8b7a375fc3fc",
+          "name": "Create chapters text",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "position": [
+            0,
+            0
+          ],
+          "typeVersion": 1,
+          "credentials": {
+            "openAiApi": {
+              "id": "XOqL0kyWGcEGHM2f",
+              "name": "OpenAi account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "messages": {
+              "values": [
+                {
+                  "content": "Crie um post curto para LinkedIn sobre o post: {{ $json.title.rendered }}\n\nESTILO:\n- Gancho rápido (Curiosidade ou Problema).\n- 2 a 3 linhas de texto (Opinião do Emerson).\n- Chamada: \"Link completo nos comentários!\"\n- Hashtags: #AudioProfissional #EmersonPorfa #AudioBrasil e +2 do tema.\n- Curto, humano, sem emojis em excesso."
+                }
+              ]
+            },
+            "options": {}
+          },
+          "id": "e37dfb6f-85f4-4139-abe4-563410aeaf8c",
+          "name": "Generate LinkedIn Text",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "position": [
+            1920,
+            80
+          ],
+          "typeVersion": 1,
+          "credentials": {
+            "openAiApi": {
+              "id": "XOqL0kyWGcEGHM2f",
+              "name": "OpenAi account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "messages": {
+              "values": [
+                {
+                  "content": "Crie uma legenda curta para Instagram:\n- Gancho impactante na primeira linha.\n- Texto curtíssimo (máximo 60 palavras).\n- CTA: \"Link na Bio!\"\n- Hashtags: #AudioProfissional #EmersonPorfa + temas.\n- Tom: Direto, como um story escrito."
+                }
+              ]
+            },
+            "options": {}
+          },
+          "id": "a82d6c0f-04d9-4ce6-a97a-c9fb8eaf2a12",
+          "name": "Generate Instagram Text",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "position": [
+            2272,
+            80
+          ],
+          "typeVersion": 1,
+          "credentials": {
+            "openAiApi": {
+              "id": "XOqL0kyWGcEGHM2f",
+              "name": "OpenAi account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "operation": "appendOrUpdate",
+            "documentId": {
+              "__rl": true,
+              "value": "1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY",
+              "mode": "list",
+              "cachedResultName": "Posts Memory",
+              "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit?usp=drivesdk"
+            },
+            "sheetName": {
+              "__rl": true,
+              "value": "gid=0",
+              "mode": "list",
+              "cachedResultName": "Página1",
+              "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY/edit#gid=0"
+            },
+            "columns": {
+              "mappingMode": "defineBelow",
+              "value": {
+                "post_id": "={{ $('Post on Wordpress').first().json.id }}",
+                "keywords": "={{ $('Settings').first().json.keywords }}",
+                "chapters": "={{ $('Settings').first().json.chapters }}",
+                "words": "={{ $('Settings').first().json.words }}"
+              },
+              "matchingColumns": [
+                "post_id"
+              ],
+              "schema": [
+                {
+                  "id": "post_id",
+                  "displayName": "post_id",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "keywords",
+                  "displayName": "keywords",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true
+                },
+                {
+                  "id": "chapters",
+                  "displayName": "chapters",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true
+                },
+                {
+                  "id": "words",
+                  "displayName": "words",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true
+                }
+              ],
+              "attemptToConvertTypes": false,
+              "convertFieldsToString": false
+            },
+            "options": {}
+          },
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4.7,
+          "position": [
+            1008,
+            80
+          ],
+          "id": "6637a8e9-05f5-4403-a4f8-e78acb64d6ec",
+          "name": "Append or update row in sheet",
+          "credentials": {
+            "googleSheetsOAuth2Api": {
+              "id": "Du4hkxIVIISxwDe8",
+              "name": "Google Sheets account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "const postId = $('Post on Wordpress').first().json.id;\nconst title = $('Create post title and structure').first().json.message.content.title;\nconst linkedinText = $('Generate LinkedIn Text').first().json.message.content;\nconst instagramText = $('Generate Instagram Text').first().json.message.content;\n\nconst message = `*🎯 POST PRONTO (#${postId})*\\n\\n*${title}*\\n\\n🔗 *Rascunho:* [Ver no WP](https://blog.emersonporfaaudio.com.br/wp-admin/post.php?post=${postId}&action=edit)\\n\\n━━━━━━━━━━━━━━\\n*📱 LINKEDIN:*\\n${linkedinText}\\n\\n━━━━━━━━━━━━━━\\n*📸 INSTAGRAM:*\\n${instagramText}\\n\\n━━━━━━━━━━━━━━\\nEscolha uma ação:`;\n\nconst reply_markup = {\n  inline_keyboard: [\n    [\n      { text: \"✅ APROVAR\", callback_data: \"APPROVE#\" + postId },\n      { text: \"❌ REJEITAR\", callback_data: \"REJECT#\" + postId }\n    ]\n  ]\n};\n\nreturn [{\n  json: {\n    chatId: \"731625851\",\n    messageText: message,\n    reply_markup: reply_markup\n  }\n}];\n"
+          },
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            2624,
+            80
+          ],
+          "id": "2d516ca8-ac6c-43c1-a027-b1472f97514a",
+          "name": "Prepare Telegram Message"
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "options": {
+              "allowUnauthorizedCerts": true
+            },
+            "sendBody": true,
+            "url": "https://api.telegram.org/bot8508917784:AAFJzW2NXsKkDa6I4ORDPxwLpHuy5RmVBdE/sendMessage?chat_id=-1002360830491&text={{ encodeURIComponent('Novo post criado: ' + $('Post on Wordpress').first().json.title.rendered) }}"
+          },
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.4,
+          "position": [
+            2832,
+            80
+          ],
+          "id": "8e6da25a-5499-433d-8879-8822682fe49b",
+          "name": "Send Telegram Approval"
+        },
+        {
+          "parameters": {
+            "jsCode": "const item = $input.first().json;\nlet content = item.message.content;\n\nif (typeof content === 'string') {\n  try {\n    content = content.replace(/```json/g, '').replace(/```/g, '').trim();\n    content = JSON.parse(content);\n  } catch (e) {\n    throw new Error('A IA não gerou um JSON válido: ' + e.message);\n  }\n}\n\nreturn [{\n  json: {\n    ...item,\n    message: {\n      ...item.message,\n      content: content\n    }\n  }\n}];"
+          },
+          "id": "parse-ai-json-form-v2",
+          "name": "Parse AI JSON",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            -576,
+            176
+          ]
+        }
+      ],
+      "connections": {
+        "Form": {
+          "main": [
+            [
+              {
+                "node": "Settings",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Settings": {
+          "main": [
+            [
+              {
+                "node": "Create post title and structure",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Wikipedia": {
+          "ai_tool": [
+            [
+              {
+                "node": "Create post title and structure",
+                "type": "ai_tool",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Upload media": {
+          "main": [
+            [
+              {
+                "node": "Set image ID for the post",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Split out chapters": {
+          "main": [
+            [
+              {
+                "node": "Merge chapters title and text",
+                "type": "main",
+                "index": 1
+              },
+              {
+                "node": "Create chapters text",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Create chapters text": {
+          "main": [
+            [
+              {
+                "node": "Merge chapters title and text",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Check data consistency": {
+          "main": [
+            [
+              {
+                "node": "Split out chapters",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond: Error",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Generate featured image": {
+          "main": [
+            [
+              {
+                "node": "Upload media",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Set image ID for the post": {
+          "main": [
+            [
+              {
+                "node": "Generate LinkedIn Text",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge chapters title and text": {
+          "main": [
+            [
+              {
+                "node": "Final article text",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Create post title and structure": {
+          "main": [
+            [
+              {
+                "node": "Parse AI JSON",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Generate LinkedIn Text": {
+          "main": [
+            [
+              {
+                "node": "Generate Instagram Text",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Generate Instagram Text": {
+          "main": [
+            [
+              {
+                "node": "Prepare Telegram Message",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Append or update row in sheet": {
+          "main": [
+            [
+              {
+                "node": "Generate featured image",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Prepare Telegram Message": {
+          "main": [
+            [
+              {
+                "node": "Send Telegram Approval",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Send Telegram Approval": {
+          "main": [
+            [
+              {
+                "node": "Respond: Success",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse AI JSON": {
+          "main": [
+            [
+              {
+                "node": "Check data consistency",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Final article text": {
+          "main": [
+            [
+              {
+                "node": "Post on Wordpress",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Post on Wordpress": {
+          "main": [
+            [
+              {
+                "node": "Append or update row in sheet",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "authors": "emerson silva",
+      "name": null,
+      "description": null,
+      "autosaved": false,
+      "workflowPublishHistory": [
+        {
+          "createdAt": "2026-02-11T03:37:55.628Z",
+          "id": 39,
+          "workflowId": "GEnmEfcIX46R1O769iNxg",
+          "versionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
+          "event": "activated",
+          "userId": "9ed7cfce-6553-4d26-a005-ef76d47034a3"
+        }
+      ]
+    }
+  }
+}
