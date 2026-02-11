@@ -1,7 +1,7 @@
 {
   "success": true,
   "data": {
-    "updatedAt": "2026-02-11T03:37:55.544Z",
+    "updatedAt": "2026-02-11T04:21:57.428Z",
     "createdAt": "2026-02-05T19:04:13.800Z",
     "id": "GEnmEfcIX46R1O769iNxg",
     "name": "Write a WordPress post with AI  - FORM",
@@ -675,6 +675,95 @@
           -576,
           176
         ]
+      },
+      {
+        "id": "node-gs-search-id",
+        "name": "Search Keywords Memory",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          -800,
+          0
+        ],
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "keywords",
+                "lookupValue": "={{ $json.keywords }}"
+              }
+            ]
+          },
+          "operation": "getAll",
+          "sheetName": {
+            "__rl": true,
+            "mode": "id",
+            "value": "gid=0"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "Du4hkxIVIISxwDe8",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "id": "node-if-dup-id",
+        "name": "Is Duplicate?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -600,
+          0
+        ],
+        "parameters": {
+          "conditions": {
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "c-is-dup",
+                "leftValue": "={{ $json.keywords }}",
+                "operator": {
+                  "operation": "notEmpty",
+                  "type": "string"
+                },
+                "rightValue": ""
+              }
+            ],
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            }
+          },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        }
+      },
+      {
+        "id": "node-resp-dup-id",
+        "name": "Respond Error Duplicate",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          200
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={ \"message\": \"Você já escreveu sobre esse assunto! Verifique a planilha ou use palavras-chave diferentes.\" }"
+        }
       }
     ],
     "connections": {
@@ -683,17 +772,6 @@
           [
             {
               "node": "Settings",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Settings": {
-        "main": [
-          [
-            {
-              "node": "Create post title and structure",
               "type": "main",
               "index": 0
             }
@@ -898,6 +976,44 @@
             }
           ]
         ]
+      },
+      "Settings": {
+        "main": [
+          [
+            {
+              "node": "Search Keywords Memory",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Keywords Memory": {
+        "main": [
+          [
+            {
+              "node": "Is Duplicate?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Is Duplicate?": {
+        "main": [
+          [
+            {
+              "node": "Create post title and structure",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Respond Error Duplicate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "settings": {
@@ -911,9 +1027,9 @@
       "templateCredsSetupCompleted": true
     },
     "pinData": {},
-    "versionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
-    "activeVersionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
-    "versionCounter": 92,
+    "versionId": "b07565ac-c739-4deb-b2c4-80991433e72f",
+    "activeVersionId": "b07565ac-c739-4deb-b2c4-80991433e72f",
+    "versionCounter": 95,
     "triggerCount": 1,
     "shared": [
       {
@@ -965,9 +1081,9 @@
     ],
     "tags": [],
     "activeVersion": {
-      "updatedAt": "2026-02-11T03:37:55.545Z",
-      "createdAt": "2026-02-11T03:37:55.545Z",
-      "versionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
+      "updatedAt": "2026-02-11T04:21:57.430Z",
+      "createdAt": "2026-02-11T04:21:57.430Z",
+      "versionId": "b07565ac-c739-4deb-b2c4-80991433e72f",
       "workflowId": "GEnmEfcIX46R1O769iNxg",
       "nodes": [
         {
@@ -1636,6 +1752,95 @@
             -576,
             176
           ]
+        },
+        {
+          "id": "node-gs-search-id",
+          "name": "Search Keywords Memory",
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4.5,
+          "position": [
+            -800,
+            0
+          ],
+          "parameters": {
+            "documentId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "1kyM4JX7l0XW2BiaNTAgH2b0nFPzyEEhjlj-IMeTCeZY"
+            },
+            "filtersUI": {
+              "values": [
+                {
+                  "lookupColumn": "keywords",
+                  "lookupValue": "={{ $json.keywords }}"
+                }
+              ]
+            },
+            "operation": "getAll",
+            "sheetName": {
+              "__rl": true,
+              "mode": "id",
+              "value": "gid=0"
+            }
+          },
+          "credentials": {
+            "googleSheetsOAuth2Api": {
+              "id": "Du4hkxIVIISxwDe8",
+              "name": "Google Sheets account"
+            }
+          }
+        },
+        {
+          "id": "node-if-dup-id",
+          "name": "Is Duplicate?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "position": [
+            -600,
+            0
+          ],
+          "parameters": {
+            "conditions": {
+              "combinator": "and",
+              "conditions": [
+                {
+                  "id": "c-is-dup",
+                  "leftValue": "={{ $json.keywords }}",
+                  "operator": {
+                    "operation": "notEmpty",
+                    "type": "string"
+                  },
+                  "rightValue": ""
+                }
+              ],
+              "options": {
+                "version": 2,
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "strict"
+              }
+            },
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            }
+          }
+        },
+        {
+          "id": "node-resp-dup-id",
+          "name": "Respond Error Duplicate",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1,
+          "position": [
+            -600,
+            200
+          ],
+          "parameters": {
+            "respondWith": "json",
+            "responseBody": "={ \"message\": \"Você já escreveu sobre esse assunto! Verifique a planilha ou use palavras-chave diferentes.\" }"
+          }
         }
       ],
       "connections": {
@@ -1644,17 +1849,6 @@
             [
               {
                 "node": "Settings",
-                "type": "main",
-                "index": 0
-              }
-            ]
-          ]
-        },
-        "Settings": {
-          "main": [
-            [
-              {
-                "node": "Create post title and structure",
                 "type": "main",
                 "index": 0
               }
@@ -1859,6 +2053,44 @@
               }
             ]
           ]
+        },
+        "Settings": {
+          "main": [
+            [
+              {
+                "node": "Search Keywords Memory",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Search Keywords Memory": {
+          "main": [
+            [
+              {
+                "node": "Is Duplicate?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Is Duplicate?": {
+          "main": [
+            [
+              {
+                "node": "Create post title and structure",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Respond Error Duplicate",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
         }
       },
       "authors": "emerson silva",
@@ -1867,10 +2099,10 @@
       "autosaved": false,
       "workflowPublishHistory": [
         {
-          "createdAt": "2026-02-11T03:37:55.628Z",
-          "id": 39,
+          "createdAt": "2026-02-11T04:21:57.585Z",
+          "id": 41,
           "workflowId": "GEnmEfcIX46R1O769iNxg",
-          "versionId": "bbeccad0-5d0e-4b69-a926-e96dd24e292b",
+          "versionId": "b07565ac-c739-4deb-b2c4-80991433e72f",
           "event": "activated",
           "userId": "9ed7cfce-6553-4d26-a005-ef76d47034a3"
         }

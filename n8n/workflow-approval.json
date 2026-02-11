@@ -1,7 +1,7 @@
 {
   "success": true,
   "data": {
-    "updatedAt": "2026-02-11T01:08:09.079Z",
+    "updatedAt": "2026-02-11T04:22:21.639Z",
     "createdAt": "2026-02-05T19:05:41.162Z",
     "id": "IbG8jCLZxkmR-Yw9JVUQ9",
     "name": "Aprovação Posts TELEGRAM",
@@ -392,6 +392,59 @@
         ],
         "id": "a24e2253-11e2-4629-941f-c3b09326ec0f",
         "name": "Build Recreated Message"
+      },
+      {
+        "id": "node-if-reject-type-id",
+        "name": "Reject Click or Text?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -2016,
+          256
+        ],
+        "parameters": {
+          "conditions": {
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "c-is-click",
+                "leftValue": "={{ $json.action }}",
+                "operator": {
+                  "operation": "equals",
+                  "type": "string"
+                },
+                "rightValue": "REJECT_CLICK"
+              }
+            ],
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            }
+          },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        }
+      },
+      {
+        "id": "node-tg-msg-reason-id",
+        "name": "Telegram Ask Reason",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          -1800,
+          450
+        ],
+        "parameters": {
+          "additionalFields": {},
+          "chatId": "={{ $json.chatId }}",
+          "text": "📝 *Motivo da Rejeição*\\n\\nVocê selecionou o Post #{{ $json.postId }} para revisão. Para que eu possa ajustar o conteúdo, por favor responda com o motivo usando o formato:\\n\\n`REJEITAR #{{ $json.postId }} [seu motivo aqui]`"
+        }
       }
     ],
     "connections": {
@@ -479,11 +532,9 @@
               "node": "Extract Post ID",
               "type": "main",
               "index": 0
-            }
-          ],
-          [
+            },
             {
-              "node": "Extract Post ID1",
+              "node": "Reject Click or Text?",
               "type": "main",
               "index": 0
             }
@@ -571,6 +622,22 @@
             }
           ]
         ]
+      },
+      "Reject Click or Text?": {
+        "main": [
+          [
+            {
+              "node": "Telegram Ask Reason",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Extract Post ID1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "settings": {
@@ -584,9 +651,9 @@
       "templateCredsSetupCompleted": true
     },
     "pinData": {},
-    "versionId": "92e2a783-b830-4890-bacc-9369ade597b5",
-    "activeVersionId": "92e2a783-b830-4890-bacc-9369ade597b5",
-    "versionCounter": 14,
+    "versionId": "9f344e20-26e5-4073-a1d8-06e7e0293ffe",
+    "activeVersionId": "9f344e20-26e5-4073-a1d8-06e7e0293ffe",
+    "versionCounter": 17,
     "triggerCount": 1,
     "shared": [
       {
@@ -638,9 +705,9 @@
     ],
     "tags": [],
     "activeVersion": {
-      "updatedAt": "2026-02-11T01:08:09.080Z",
-      "createdAt": "2026-02-11T01:08:09.080Z",
-      "versionId": "92e2a783-b830-4890-bacc-9369ade597b5",
+      "updatedAt": "2026-02-11T04:22:21.641Z",
+      "createdAt": "2026-02-11T04:22:21.641Z",
+      "versionId": "9f344e20-26e5-4073-a1d8-06e7e0293ffe",
       "workflowId": "IbG8jCLZxkmR-Yw9JVUQ9",
       "nodes": [
         {
@@ -1026,6 +1093,59 @@
           ],
           "id": "a24e2253-11e2-4629-941f-c3b09326ec0f",
           "name": "Build Recreated Message"
+        },
+        {
+          "id": "node-if-reject-type-id",
+          "name": "Reject Click or Text?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "position": [
+            -2016,
+            256
+          ],
+          "parameters": {
+            "conditions": {
+              "combinator": "and",
+              "conditions": [
+                {
+                  "id": "c-is-click",
+                  "leftValue": "={{ $json.action }}",
+                  "operator": {
+                    "operation": "equals",
+                    "type": "string"
+                  },
+                  "rightValue": "REJECT_CLICK"
+                }
+              ],
+              "options": {
+                "version": 2,
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "strict"
+              }
+            },
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            }
+          }
+        },
+        {
+          "id": "node-tg-msg-reason-id",
+          "name": "Telegram Ask Reason",
+          "type": "n8n-nodes-base.telegram",
+          "typeVersion": 1.2,
+          "position": [
+            -1800,
+            450
+          ],
+          "parameters": {
+            "additionalFields": {},
+            "chatId": "={{ $json.chatId }}",
+            "text": "📝 *Motivo da Rejeição*\\n\\nVocê selecionou o Post #{{ $json.postId }} para revisão. Para que eu possa ajustar o conteúdo, por favor responda com o motivo usando o formato:\\n\\n`REJEITAR #{{ $json.postId }} [seu motivo aqui]`"
+          }
         }
       ],
       "connections": {
@@ -1113,11 +1233,9 @@
                 "node": "Extract Post ID",
                 "type": "main",
                 "index": 0
-              }
-            ],
-            [
+              },
               {
-                "node": "Extract Post ID1",
+                "node": "Reject Click or Text?",
                 "type": "main",
                 "index": 0
               }
@@ -1205,6 +1323,22 @@
               }
             ]
           ]
+        },
+        "Reject Click or Text?": {
+          "main": [
+            [
+              {
+                "node": "Telegram Ask Reason",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Extract Post ID1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
         }
       },
       "authors": "emerson silva",
@@ -1213,10 +1347,10 @@
       "autosaved": false,
       "workflowPublishHistory": [
         {
-          "createdAt": "2026-02-11T01:08:10.962Z",
-          "id": 8,
+          "createdAt": "2026-02-11T04:22:23.519Z",
+          "id": 42,
           "workflowId": "IbG8jCLZxkmR-Yw9JVUQ9",
-          "versionId": "92e2a783-b830-4890-bacc-9369ade597b5",
+          "versionId": "9f344e20-26e5-4073-a1d8-06e7e0293ffe",
           "event": "activated",
           "userId": "9ed7cfce-6553-4d26-a005-ef76d47034a3"
         }
