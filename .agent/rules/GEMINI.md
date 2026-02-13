@@ -107,7 +107,8 @@ When user's prompt is NOT in English:
 
 **ALL code MUST follow `@[skills/clean-code]` rules. No exceptions.**
 
-- **Code**: Concise, direct, no over-engineering. Self-documenting.
+- **Clean Code**: Concise, direct, no over-engineering. Self-documenting.
+- **Structural Integrity (CRITICAL)**: NEVER remove nodes, connections, or make destructive structural changes in n8n workflows unless explicitly commanded by the USER. Implementation of new logic or removal of existing components must be requested, not assumed.
 - **Testing**: Mandatory. Pyramid (Unit > Int > E2E) + AAA Pattern.
 - **Performance**: Measure first. Adhere to 2025 standards (Core Web Vitals).
 - **Infra/Safety**: 5-Phase Deployment. Verify secrets security.
